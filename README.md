@@ -1,14 +1,3 @@
-¡Ah! Ya veo exactamente el problema en tu captura de pantalla. Es un error súper común al trabajar con Markdown.
-
-Lo que sucedió es que en el "Paso 1", abriste un bloque de código con tres comillas invertidas (````bash`), pero **nunca lo cerraste** con las otras tres comillas (`````) al final de ese comando. Como resultado, GitHub (o tu editor) asume que *todo el resto del documento* sigue siendo parte de ese mismo bloque de código.
-
-Además, al copiar y pegar anteriormente, se pegaron las palabras literales "Bash" y "Fragmento de código" en lugar de los delimitadores de Markdown reales.
-
-He corregido absolutamente todo. Ahora los bloques se abren y se cierran correctamente.
-
-Copia **todo** este bloque y pégalo tal cual en tu `README.md` borrando lo anterior:
-
-```markdown
 # 🚀 CloudMedia - Arquitectura Event-Driven y Serverless
 
 Este proyecto es una implementación completa de una arquitectura orientada a eventos (*Event-Driven Architecture*) diseñada para resolver los cuellos de botella en el procesamiento de archivos pesados. El sistema desacopla la recepción de la imagen de su procesamiento intensivo utilizando microservicios, un Message Broker, almacenamiento en la nube simulado y notificaciones en tiempo real, garantizando que la interfaz del usuario nunca se congele.
