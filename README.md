@@ -235,8 +235,3 @@ If you want to see how this infrastructure would be provisioned in AWS:
 cd infrastructure/terraform
 terraform init
 terraform plan
-
-```
-
-```
-
