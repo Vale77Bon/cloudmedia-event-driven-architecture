@@ -33,28 +33,32 @@ Abre Docker Desktop. Luego, en la terminal raíz del proyecto, ejecuta:
 ```bash
 docker-compose up -d
 
-Configuración de MinIO: Ingresa al panel en http://localhost:9001 (Usuario: cloudmedia_admin / Contraseña: cloudmedia_secure_password). Ve a "Buckets", crea uno nuevo llamado cloudmedia-bucket y asegúrate de configurarlo como público.
+**Paso 2: Configurar y Levantar el API Gateway (El Recepcionista)**
 
-Paso 2: Configurar y Levantar el API Gateway (El Recepcionista)
 Abre una nueva terminal, entra a la carpeta del API y crea el archivo de entorno:
 
 Bash
 cd api-gateway
+
 Crea un archivo llamado .env en esta carpeta con el siguiente contenido:
 
 Fragmento de código
 PORT=3001
 RABBITMQ_URL=amqp://guest:guest@localhost:5672
+
 Instala las dependencias e inicia el servidor:
 
 Bash
 npm install
 npm run dev
-Paso 3: Configurar y Levantar el Worker Service (El Obrero)
+
+**Paso 3: Configurar y Levantar el Worker Service (El Obrero)**
+
 Abre otra terminal, entra a la carpeta del Worker:
 
 Bash
 cd worker-service
+
 Crea un archivo llamado .env en esta carpeta con el siguiente contenido:
 
 Fragmento de código
@@ -63,125 +67,64 @@ S3_ENDPOINT=http://localhost:9000
 S3_ACCESS_KEY=cloudmedia_admin
 S3_SECRET_KEY=cloudmedia_secure_password
 S3_BUCKET_NAME=cloudmedia-bucket
+
 Instala las dependencias e inicia el worker:
 
 Bash
 npm install
 npm run dev
-Paso 4: Levantar el Dashboard Visual (Frontend)
+
+**Paso 4: Levantar el Dashboard Visual (Frontend)**
+
 En una última terminal, entra a la aplicación Next.js y ejecuta:
 
 Bash
 cd frontend
 npm install
 npm run dev
+
 ¡Listo! Ingresa a http://localhost:3000 en tu navegador y prueba la plataforma subiendo imágenes.
 
-Paso 5: (Opcional) Simular Despliegue en AWS con Terraform
+**Paso 5: (Opcional) Simular Despliegue en AWS con Terraform**
+
 Si deseas ver cómo se provisionaría esta infraestructura en AWS:
 
 Bash
 cd infrastructure/terraform
 terraform init
 terraform plan
-🚀 CloudMedia - Event-Driven & Serverless Architecture (English Version)
+
+
+# 🚀 CloudMedia - Event-Driven & Serverless Architecture (English Version)
+
 This project is a comprehensive implementation of an Event-Driven Architecture designed to solve bottlenecks in heavy file processing. The system decouples image reception from intensive processing using microservices, a Message Broker, simulated cloud storage, and real-time notifications, ensuring the user interface remains responsive and never freezes.
 
-🏗️ Tech Stack
-Infrastructure & DevOps: Docker, Docker Compose, Terraform (AWS SQS & S3 IaC).
+## 🏗️ Tech Stack
+* **Infrastructure & DevOps:** Docker, Docker Compose, Terraform (AWS SQS & S3 IaC).
+* **Backend (API Gateway):** Node.js, Express.js (Multipart HTTP request handling).
+* **Backend (Worker Service):** Node.js, Sharp (Asynchronous image processing).
+* **Frontend:** Next.js (App Router), React.js, Tailwind CSS.
+* **Message Broker:** RabbitMQ (Queue management and microservice decoupling).
+* **Cloud Storage:** MinIO (100% compatible with AWS S3 SDK).
+* **Real-Time:** WebSockets with Socket.io (Push notifications to the client).
 
-Backend (API Gateway): Node.js, Express.js (Multipart HTTP request handling).
+## 🗺️ Architecture Flow
+1. **The User** uploads a heavy file through the Frontend (Next.js).
+2. **The API Gateway** receives the file, instantly responds with a `202 Accepted`, and publishes a `NEW_IMAGE` event to RabbitMQ.
+3. **The Worker Service** (listening in the background) consumes the event, compresses and resizes the image using Sharp, and uploads it to the MinIO bucket (S3).
+4. **The Worker** notifies completion by sending an event to the `job_completed_queue`.
+5. **The API Gateway** receives this acknowledgment and pushes a WebSocket event to the Frontend.
+6. **The Frontend** updates the dynamic gallery in real-time without reloading the page.
 
-Backend (Worker Service): Node.js, Sharp (Asynchronous image processing).
-
-Frontend: Next.js (App Router), React.js, Tailwind CSS.
-
-Message Broker: RabbitMQ (Queue management and microservice decoupling).
-
-Cloud Storage: MinIO (100% compatible with AWS S3 SDK).
-
-Real-Time: WebSockets with Socket.io (Push notifications to the client).
-
-🗺️ Architecture Flow
-The User uploads a heavy file through the Frontend (Next.js).
-
-The API Gateway receives the file, instantly responds with a 202 Accepted, and publishes a NEW_IMAGE event to RabbitMQ.
-
-The Worker Service (listening in the background) consumes the event, compresses and resizes the image using Sharp, and uploads it to the MinIO bucket (S3).
-
-The Worker notifies completion by sending an event to the job_completed_queue.
-
-The API Gateway receives this acknowledgment and pushes a WebSocket event to the Frontend.
-
-The Frontend updates the dynamic gallery in real-time without reloading the page.
-
-🛠️ Prerequisites
+## 🛠️ Prerequisites
 To run this project locally, you will need:
+* **Docker Desktop:** To spin up the RabbitMQ and MinIO containers without installing global dependencies.
+* **Node.js (LTS):** To run the microservices and the Next.js environment.
+* **Terraform (Optional):** If you want to test the Infrastructure as Code deployment simulation (`terraform plan`).
 
-Docker Desktop: To spin up the RabbitMQ and MinIO containers without installing global dependencies.
+## 🚀 Detailed Start Guide
 
-Node.js (LTS): To run the microservices and the Next.js environment.
-
-Terraform (Optional): If you want to test the Infrastructure as Code deployment simulation (terraform plan).
-
-🚀 Detailed Start Guide
-Step 1: Spin up the Base Infrastructure (Message Broker and Storage)
+**Step 1: Spin up the Base Infrastructure (Message Broker and Storage)**
 Open Docker Desktop. Then, in the root terminal of the project, run:
-
-Bash
+```bash
 docker-compose up -d
-MinIO Setup: Access the dashboard at http://localhost:9001 (User: cloudmedia_admin / Pass: cloudmedia_secure_password). Go to "Buckets", create a new one named cloudmedia-bucket, and make sure it is set to public access.
-
-Step 2: Setup and Start the API Gateway (The Receptionist)
-Open a new terminal, navigate to the API folder:
-
-Bash
-cd api-gateway
-Create a .env file in this folder with the following content:
-
-Fragmento de código
-PORT=3001
-RABBITMQ_URL=amqp://guest:guest@localhost:5672
-Install dependencies and start the server:
-
-Bash
-npm install
-npm run dev
-Step 3: Setup and Start the Worker Service (The Laborer)
-Open another terminal, navigate to the Worker folder:
-
-Bash
-cd worker-service
-Create a .env file in this folder with the following content:
-
-Fragmento de código
-RABBITMQ_URL=amqp://guest:guest@localhost:5672
-S3_ENDPOINT=http://localhost:9000
-S3_ACCESS_KEY=cloudmedia_admin
-S3_SECRET_KEY=cloudmedia_secure_password
-S3_BUCKET_NAME=cloudmedia-bucket
-Install dependencies and start the worker:
-
-Bash
-npm install
-npm run dev
-Step 4: Start the Visual Dashboard (Frontend)
-In a final terminal, navigate to the Next.js application and run:
-
-Bash
-cd frontend
-npm install
-npm run dev
-Done! Access http://localhost:3000 in your browser and test the platform by uploading images.
-
-Step 5: (Optional) Simulate AWS Deployment with Terraform
-If you want to see how this infrastructure would be provisioned in AWS:
-
-Bash
-cd infrastructure/terraform
-terraform init
-terraform plan
-👨‍💻 Autor / Author
-Valentin Hernandez Molina
-Ingeniería en TICs | TICs Engineering
-En búsqueda de oportunidades para Servicio Social enfocadas en arquitecturas escalables y desarrollo backend.
