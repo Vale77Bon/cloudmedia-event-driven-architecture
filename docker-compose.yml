@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # Message Broker: RabbitMQ con panel de administración
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: cloudmedia_rabbitmq
+    ports:
+      - "5672:5672"   # Puerto de comunicación AMQP para los microservicios
+      - "15672:15672" # Puerto de la interfaz web de administración
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - cloudmedia_network
+
+  # Almacenamiento Cloud Local: MinIO (Simulador de AWS S3)
+  minio:
+    image: minio/minio:latest
+    container_name: cloudmedia_minio
+    ports:
+      - "9000:9000"   # Puerto de la API de S3
+      - "9001:9001"   # Puerto de la consola web de administración
+    environment:
+      MINIO_ROOT_USER: cloudmedia_admin
+      MINIO_ROOT_PASSWORD: cloudmedia_secure_password
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - cloudmedia_network
+
+volumes:
+  rabbitmq_data:
+  minio_data:
+
+networks:
+  cloudmedia_network:
+    driver: bridge

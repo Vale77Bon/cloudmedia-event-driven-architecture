@@ -1,0 +1,19 @@
+# Dependencias de Node
+node_modules/
+
+# Variables de entorno
+.env
+
+# Carpetas de Next.js
+.next/
+out/
+build/
+
+# Archivos temporales de imágenes
+uploads/
+
+# Archivos de estado de Terraform
+infrastructure/terraform/.terraform/
+infrastructure/terraform/terraform.tfstate
+infrastructure/terraform/terraform.tfstate.backup
+*.tfvars
